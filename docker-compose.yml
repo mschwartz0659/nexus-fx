@@ -42,6 +42,13 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    logging:
+      driver: loki
+      options:
+        loki-url: "http://localhost:3100/loki/api/v1/push"
+        loki-retries: "5"
+        loki-batch-size: "400"
+        loki-external-labels: "container={{.Name}},service=price-service"
     deploy:
       resources:
         limits:
@@ -69,6 +76,13 @@ services:
         condition: service_healthy
       price-service:
         condition: service_healthy
+    logging:
+      driver: loki
+      options:
+        loki-url: "http://localhost:3100/loki/api/v1/push"
+        loki-retries: "5"
+        loki-batch-size: "400"
+        loki-external-labels: "container={{.Name}},service=engine"
     deploy:
       resources:
         limits:
@@ -99,6 +113,13 @@ services:
         condition: service_healthy
       price-service:
         condition: service_healthy
+    logging:
+      driver: loki
+      options:
+        loki-url: "http://localhost:3100/loki/api/v1/push"
+        loki-retries: "5"
+        loki-batch-size: "400"
+        loki-external-labels: "container={{.Name}},service=api-gateway"
     deploy:
       resources:
         limits:
@@ -137,6 +158,18 @@ services:
     networks:
       - nexus
 
+  loki:
+    image: grafana/loki:3.2.0
+    command:
+      - "-config.file=/etc/loki/loki.yaml"
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./loki.yaml:/etc/loki/loki.yaml:ro
+      - lokidata:/loki
+    networks:
+      - nexus
+
   grafana:
     image: grafana/grafana:11.2.0
     ports:
@@ -152,12 +185,14 @@ services:
     depends_on:
       - prometheus
       - tempo
+      - loki
 
 volumes:
   pgdata:
   promdata:
   grafanadata:
   tempodata:
+  lokidata:
 
 networks:
   nexus:

@@ -16,15 +16,15 @@ jobs:
       run:
         working-directory: services/api-gateway
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b # v5.3.0
         with:
           python-version: ${{ matrix.python-version }}
 
       - name: Cache pip
-        uses: actions/cache@v4
+        uses: actions/cache@1bd1e32a3bdc45362d1e726936510720a7c30a57 # v4.2.0
         with:
           path: ~/.cache/pip
           key: ${{ runner.os }}-py${{ matrix.python-version }}-pip-${{ hashFiles('services/api-gateway/requirements.txt', 'services/api-gateway/requirements-dev.txt') }}
@@ -61,20 +61,36 @@ jobs:
       contents: read
       packages: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@c47758b77c9736f4b2ef4073d4d51994fabfe349 # v3.7.1
 
       - name: Log in to GHCR
-        uses: docker/login-action@v3
+        uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3.3.0
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push api-gateway image
-        uses: docker/build-push-action@v6
+      - name: Build api-gateway image
+        uses: docker/build-push-action@4f58ea79222b3b9dc2c8bbdd6debcd730bb3440c # v6.9.0
+        with:
+          context: services/api-gateway
+          load: true
+          tags: ghcr.io/${{ github.repository }}/api-gateway:${{ github.sha }}
+
+      - name: Scan api-gateway image with Trivy
+        uses: aquasecurity/trivy-action@18f2510ee396bbf400402947b394f2dd8c87dbb0 # v0.29.0
+        with:
+          image-ref: ghcr.io/${{ github.repository }}/api-gateway:${{ github.sha }}
+          format: table
+          exit-code: "1"
+          severity: HIGH,CRITICAL
+          ignore-unfixed: true
+
+      - name: Push api-gateway image
+        uses: docker/build-push-action@4f58ea79222b3b9dc2c8bbdd6debcd730bb3440c # v6.9.0
         with:
           context: services/api-gateway
           push: true

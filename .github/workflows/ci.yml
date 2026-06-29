@@ -1,3 +1,4 @@
+```
 name: CI
 
 on:
@@ -37,6 +38,8 @@ jobs:
           tags: |
             ghcr.io/${{ github.repository }}/${{ matrix.service }}:${{ github.sha }}
             ghcr.io/${{ github.repository }}/${{ matrix.service }}:latest
+          cache-from: type=registry,ref=ghcr.io/${{ github.repository }}/${{ matrix.service }}:buildcache
+          cache-to: ${{ (github.event_name == 'push' && github.ref == 'refs/heads/main') && format('type=registry,ref=ghcr.io/{0}/{1}:buildcache,mode=max', github.repository, matrix.service) || '' }}
 
       - name: Scan ${{ matrix.service }} with Trivy
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
@@ -47,3 +50,4 @@ jobs:
           severity: CRITICAL
           exit-code: '1'
           ignore-unfixed: true
+```

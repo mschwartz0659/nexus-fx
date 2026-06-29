@@ -121,6 +121,19 @@ services:
       - engine
       - price-service
 
+  tempo:
+    image: grafana/tempo:2.6.1
+    command:
+      - "-config.file=/etc/tempo/tempo.yaml"
+    ports:
+      - "3200:3200"
+      - "4317:4317"
+    volumes:
+      - ./tempo.yaml:/etc/tempo/tempo.yaml:ro
+      - tempodata:/var/tempo
+    networks:
+      - nexus
+
   grafana:
     image: grafana/grafana:11.2.0
     ports:
@@ -135,11 +148,13 @@ services:
       - nexus
     depends_on:
       - prometheus
+      - tempo
 
 volumes:
   pgdata:
   promdata:
   grafanadata:
+  tempodata:
 
 networks:
   nexus:

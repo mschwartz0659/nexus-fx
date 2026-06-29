@@ -18,6 +18,13 @@ services:
       timeout: 3s
       retries: 5
       start_period: 10s
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+        reservations:
+          memory: 256M
 
   price-service:
     build: services/price-service
@@ -34,6 +41,13 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256M
+        reservations:
+          memory: 128M
 
   engine:
     build: services/engine
@@ -53,6 +67,13 @@ services:
         condition: service_healthy
       price-service:
         condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256M
+        reservations:
+          memory: 128M
 
   api-gateway:
     build: services/api-gateway
@@ -75,6 +96,13 @@ services:
         condition: service_healthy
       price-service:
         condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256M
+        reservations:
+          memory: 128M
 
 volumes:
   pgdata:

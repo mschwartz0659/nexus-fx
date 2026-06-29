@@ -36,6 +36,7 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://tempo:4317
     networks:
       - nexus
     depends_on:
@@ -60,6 +61,7 @@ services:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       PRICE_SERVICE_URL: http://price-service:8001
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://tempo:4317
     networks:
       - nexus
     depends_on:
@@ -89,6 +91,7 @@ services:
       JWT_EXPIRY_MINUTES: ${JWT_EXPIRY_MINUTES}
       PRICE_SERVICE_URL: http://price-service:8001
       ENGINE_SERVICE_URL: http://engine:8002
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://tempo:4317
     networks:
       - nexus
     depends_on:

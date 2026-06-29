@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    setup_telemetry("engine")
+    setup_telemetry("engine", app)
 
     engine = MatchingEngine()
     await engine.start()

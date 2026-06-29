@@ -14,7 +14,7 @@ logger = logging.getLogger(__name__)
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    setup_telemetry("price-service")
+    setup_telemetry("price-service", app)
 
     provider = MockProvider()
 

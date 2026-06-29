@@ -24,7 +24,7 @@ STATIC_DIR = Path(__file__).parent.parent / "static"
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    setup_telemetry("api-gateway")
+    setup_telemetry("api-gateway", app)
 
     price_http = httpx.AsyncClient(base_url=settings.price_service_url, timeout=10.0)
     engine_http = httpx.AsyncClient(base_url=settings.engine_service_url, timeout=10.0)

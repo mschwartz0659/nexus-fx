@@ -1,0 +1,41 @@
+groups:
+  - name: nexus-fx-slo
+    rules:
+      - alert: AvailabilityBelowSLO
+        expr: |
+          sum by (job) (rate(http_server_duration_milliseconds_count{http_status_code!~"5.."}[5m]))
+          /
+          sum by (job) (rate(http_server_duration_milliseconds_count[5m]))
+          < 0.999
+        for: 5m
+        labels:
+          severity: page
+        annotations:
+          summary: "{{ $labels.job }} availability below 99.9% SLO"
+          description: "{{ $labels.job }} success ratio is {{ $value | humanizePercentage }} over the last 5m (SLO 99.9%)."
+
+      - alert: LatencyP50AboveSLO
+        expr: |
+          histogram_quantile(
+            0.50,
+            sum by (job, le) (rate(http_server_duration_milliseconds_bucket[5m]))
+          ) > 150
+        for: 5m
+        labels:
+          severity: ticket
+        annotations:
+          summary: "{{ $labels.job }} p50 latency above 150ms SLO"
+          description: "{{ $labels.job }} p50 latency is {{ $value | printf \"%.0f\" }}ms over the last 5m (SLO 150ms)."
+
+      - alert: LatencyP99AboveSLO
+        expr: |
+          histogram_quantile(
+            0.99,
+            sum by (job, le) (rate(http_server_duration_milliseconds_bucket[5m]))
+          ) > 500
+        for: 5m
+        labels:
+          severity: page
+        annotations:
+          summary: "{{ $labels.job }} p99 latency above 500ms SLO"
+          description: "{{ $labels.job }} p99 latency is {{ $value | printf \"%.0f\" }}ms over the last 5m (SLO 500ms)."

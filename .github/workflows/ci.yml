@@ -1,4 +1,3 @@
-```
 name: CI
 
 on:
@@ -53,4 +52,32 @@ jobs:
           fi
           echo "API_KEY is set"
           echo "Running in APP_ENV=$APP_ENV"
-```
+
+  build-push:
+    needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push api-gateway image
+        uses: docker/build-push-action@v6
+        with:
+          context: services/api-gateway
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository }}/api-gateway:${{ github.sha }}
+            ghcr.io/${{ github.repository }}/api-gateway:latest

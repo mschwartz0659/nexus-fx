@@ -1,0 +1,14 @@
+```yaml
+apiVersion: 1
+
+providers:
+  - name: "nexus-fx"
+    orgId: 1
+    folder: ""
+    type: file
+    disableDeletion: false
+    editable: true
+    options:
+      path: /etc/grafana/provisioning/dashboards
+      foldersFromFilesStructure: false
+```
